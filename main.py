@@ -3,15 +3,11 @@ import os
 import requests
 import subprocess
 
-#data file setup
-DATA_DIR = Path(os.getenv("APPDATA")) / "AutoUpdate"
-DATA_DIR.mkdir(parents=True, exist_ok=True)
-DATA_FILE = DATA_DIR / "data.txt"
-
-#program setup
+#file system setup
 EXE_DIR = Path(os.getenv("APPDATA")) / "WidgetCal"
 EXE_DIR.mkdir(parents=True, exist_ok=True)
 EXE = "WidgetCal.exe"
+DATA_FILE = EXE_DIR / "version.txt"
 EXE_PATH = EXE_DIR / EXE
 
 #repo setup
