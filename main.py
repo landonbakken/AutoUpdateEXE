@@ -3,8 +3,20 @@ import os
 import requests
 import subprocess
 import json
+import sys
+import psutil
 
-with open("config.json", "r") as file:
+if getattr(sys, 'frozen', False):
+    # Running as a compiled executable
+    exe_path = sys.executable
+else:
+    # Running as a normal Python script
+    exe_path = __file__
+
+EXE_DIR = os.path.dirname(os.path.abspath(exe_path))
+CONFIGDIR = EXE_DIR + "/config.json"
+
+with open(CONFIGDIR, "r") as file:
     config = json.load(file)
 
 #file system setup
@@ -41,6 +53,14 @@ if gitVersion != localVersion:
     
     #download it
     r = requests.get(download_url)
+    for proc in psutil.process_iter(["pid", "exe"]):
+        try:
+            if proc.info["exe"] == str(EXE_PATH) and proc.pid != os.getpid():
+                proc.terminate()
+                proc.wait(timeout=5)
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            print("none")
+            pass
     with open(EXE_PATH, "wb") as f:
         f.write(r.content)
     
