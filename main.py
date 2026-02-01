@@ -2,16 +2,20 @@ from pathlib import Path
 import os
 import requests
 import subprocess
+import json
+
+with open("config.json", "r") as file:
+    config = json.load(file)
 
 #file system setup
-EXE_DIR = Path(os.getenv("APPDATA")) / "WidgetCal"
+EXE_DIR = Path(os.getenv("APPDATA")) / config["DIR"]
 EXE_DIR.mkdir(parents=True, exist_ok=True)
-EXE = "WidgetCal.exe"
+EXE = config["EXE"]
 DATA_FILE = EXE_DIR / "version.txt"
 EXE_PATH = EXE_DIR / EXE
 
 #repo setup
-RELEASE_URL = "https://api.github.com/repos/landonbakken/WidgetCal/releases/latest"
+RELEASE_URL = f"https://api.github.com/repos/{config["USER"]}/{config["REPO"]}/releases/latest"
 
 #get the local version
 if os.path.exists(DATA_FILE):
