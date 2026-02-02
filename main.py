@@ -37,35 +37,39 @@ else:
     localVersion = -1
     
 headers = {"User-Agent": "PythonScript"}
-response = requests.get(RELEASE_URL, headers=headers)
-release = response.json()
-gitVersion = release["tag_name"]
 
-#update
-if gitVersion != localVersion:
-    #get the exe info
-    exe_asset = None
-    for asset in release["assets"]:
-        if asset["name"].endswith(".exe"):
-            exe_asset = asset
-            break
-    download_url = exe_asset["browser_download_url"]
-    
-    #download it
-    r = requests.get(download_url)
-    for proc in psutil.process_iter(["pid", "exe"]):
-        try:
-            if proc.info["exe"] == str(EXE_PATH) and proc.pid != os.getpid():
-                proc.terminate()
-                proc.wait(timeout=5)
-        except (psutil.NoSuchProcess, psutil.AccessDenied):
-            print("none")
-            pass
-    with open(EXE_PATH, "wb") as f:
-        f.write(r.content)
-    
-    #update version
-    with open(DATA_FILE, "w") as f:
-        f.write(gitVersion)
+try:
+    response = requests.get(RELEASE_URL, headers=headers)
+    release = response.json()
+    gitVersion = release["tag_name"]
+
+    #update
+    if gitVersion != localVersion:
+        #get the exe info
+        exe_asset = None
+        for asset in release["assets"]:
+            if asset["name"].endswith(".exe"):
+                exe_asset = asset
+                break
+        download_url = exe_asset["browser_download_url"]
+        
+        #download it
+        r = requests.get(download_url)
+        for proc in psutil.process_iter(["pid", "exe"]):
+            try:
+                if proc.info["exe"] == str(EXE_PATH) and proc.pid != os.getpid():
+                    proc.terminate()
+                    proc.wait(timeout=5)
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                print("none")
+                pass
+        with open(EXE_PATH, "wb") as f:
+            f.write(r.content)
+        
+        #update version
+        with open(DATA_FILE, "w") as f:
+            f.write(gitVersion)         
+except:
+    pass #no wifi or similar
     
 subprocess.run([EXE_PATH])
